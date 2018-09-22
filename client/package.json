@@ -1,7 +1,11 @@
 {
   "name": "client",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.0.1",
+  "description": "my-customers client",
+  "repository": "https://github.com/fontesrp/TODO_REPLACE_ME",
+  "author": "Rodrigo Prado Fontes <fontesr2@gmail.com>",
+  "license": "MIT",
+  "private": false,
   "dependencies": {
     "react": "^16.5.2",
     "react-dom": "^16.5.2",

@@ -1,7 +1,11 @@
 {
   "name": "server",
   "version": "0.0.1",
-  "private": true,
+  "description": "my-customers API",
+  "repository": "https://github.com/fontesrp/TODO_REPLACE_ME",
+  "author": "Rodrigo Prado Fontes <fontesr2@gmail.com>",
+  "license": "MIT",
+  "private": false,
   "scripts": {
     "start": "node ./bin/www",
     "db:init": "node ./db/populate.js"
