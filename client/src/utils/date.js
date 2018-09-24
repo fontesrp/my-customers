@@ -4,3 +4,5 @@ export const localeDate = (dateStr) => {
     "en-NZ"
   )}`;
 };
+
+export const extractDate = (dateTimeStr) => (dateTimeStr || "").substr(0, 10);

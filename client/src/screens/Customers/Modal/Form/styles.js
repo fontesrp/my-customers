@@ -29,6 +29,7 @@ export const Select = styled.select`
   padding-top: 15px;
   border-width: 0 0 2px 0;
   border-color: ${style.color.lightGray};
+  color: ${style.color.text};
   ${({ error }) => !!error && "border-color: red"};
   background-color: unset;
   border-radius: unset;
@@ -51,5 +52,6 @@ export const TextArea = styled.textarea`
   padding-top: 15px;
   border-width: 0 0 2px 0;
   border-color: ${style.color.lightGray};
+  color: ${style.color.text};
   ${({ error }) => !!error && "border-color: red"};
 `;

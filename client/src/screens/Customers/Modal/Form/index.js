@@ -6,7 +6,8 @@ import {
   searchCustomers,
   resetSearch,
   editCustomer,
-  editNote
+  editManyNotes,
+  createNote
 } from "redux/actions/CustomersActions";
 import View from "./View";
 
@@ -19,13 +20,13 @@ class Form extends Component {
     };
   }
 
-  onReset() {
+  onSearchReset() {
     this.setState({ isLoading: true });
 
     return this.props.resetSearch().then(() => this.close());
   }
 
-  onSubmit(data) {
+  onSearchSubmit(data) {
     this.setState({ isLoading: true });
 
     const searchBy = Object.keys(data).reduce((result, field) => {
@@ -43,16 +44,59 @@ class Form extends Component {
     return this.props.searchCustomers(searchBy).then(() => this.close());
   }
 
+  async onEditSubmit(data) {
+    this.setState({ isLoading: true });
+
+    const { customer, createNote, editManyNotes, resetCustomers } = this.props;
+
+    if (data["note-new"]) {
+      await createNote({
+        customerId: this.props.customer.id,
+        body: data["note-new"]
+      });
+    }
+
+    const notesToEdit = [];
+
+    (customer.notes || []).forEach((note) => {
+      const newBody = data[`note-${note.id}`];
+
+      if (note.body !== newBody) {
+        notesToEdit.push({ id: note.id, body: newBody });
+      }
+    });
+
+    await editManyNotes(notesToEdit);
+
+    await resetCustomers();
+
+    this.close();
+  }
+
+  onReset() {
+    return this.props.isSearch ? this.onSearchReset() : this.close();
+  }
+
+  onSubmit(data) {
+    return this.props.isSearch
+      ? this.onSearchSubmit(data)
+      : this.onEditSubmit(data);
+  }
+
   close() {
     this.setState({ isLoading: false }, () => this.props.closeModal());
   }
 
   render() {
+    const { isSearch, customersState, customer } = this.props;
+
+    console.log(customer);
+
     return (
       <View
         isLoading={this.state.isLoading}
-        isSearch
-        formValues={this.props.customersState.search}
+        isSearch={isSearch}
+        formValues={isSearch ? customersState.search : customer}
         onSubmit={(data) => this.onSubmit(data)}
         onReset={() => this.onReset()}
       />
@@ -69,6 +113,7 @@ export default connect(
     searchCustomers,
     resetSearch,
     editCustomer,
-    editNote
+    editManyNotes,
+    createNote
   }
 )(Form);

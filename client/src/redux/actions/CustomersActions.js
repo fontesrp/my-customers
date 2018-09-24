@@ -96,3 +96,29 @@ export const editCustomer = (data) => (dispatch) =>
 
 export const editNote = (data) => (dispatch) =>
   Api.put(`/notes/${data.id}`, data);
+
+export const createNote = (data) => (dispatch) =>
+  Api.post(`/customers/${data.customerId}/notes`, { body: data.body });
+
+export const editManyNotes = (notes) => (dispatch) =>
+  new Promise((resolve, reject) => {
+    let currNote = 0;
+
+    const edit = () => {
+      if (currNote >= notes.length) {
+        return resolve();
+      }
+
+      dispatch(editNote(notes[currNote]))
+        .then(() => {
+          currNote += 1;
+          edit();
+        })
+        .catch((error) => {
+          console.error(error);
+          reject();
+        });
+    };
+
+    edit();
+  });

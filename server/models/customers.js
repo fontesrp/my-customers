@@ -1,4 +1,5 @@
 const db = require("../db").db;
+const notes = require("./notes");
 
 const prepareSearch = (search) => {
   const { id, name, email, status, createdAt, note } = search;
@@ -11,8 +12,7 @@ const prepareSearch = (search) => {
     { field: "cus.last_name", value: names[1] },
     { field: "cus.email", value: email },
     { field: "cus.status::text", value: status },
-    { field: "cus.created_at::text", value: createdAt },
-    { field: "nts.body", value: note }
+    { field: "cus.created_at::text", value: createdAt }
   ];
 
   return fields.reduce(
@@ -60,6 +60,8 @@ const all = ({ size, offset, search, orderBy }) => {
     params = [...params, ..._search.values];
   }
 
+  let customers;
+
   return db
     .manyOrNone(
       `SELECT
@@ -68,13 +70,9 @@ const all = ({ size, offset, search, orderBy }) => {
         cus.last_name,
         cus.email,
         cus.status,
-        cus.created_at,
-        nts.id note_id,
-        nts.body note_body,
-        nts.created_at note_created_at
+        cus.created_at
       FROM
         customers cus
-        LEFT OUTER JOIN notes nts ON cus.id = nts.id
       ${
         !!_search && _search.fields.length > 0
           ? `WHERE ${whereStmt(_search.fields, 3)}`
@@ -88,33 +86,50 @@ const all = ({ size, offset, search, orderBy }) => {
       params
     )
     .then((data) =>
-      Object.values(
-        data.reduce((result, row) => {
-          if (!result[row.id]) {
-            result[row.id] = {
-              id: row.id,
-              name: `${row.first_name} ${row.last_name}`,
-              first_name: row.first_name,
-              last_name: row.last_name,
-              email: row.email,
-              status: row.status,
-              created_at: row.created_at,
-              notes: []
-            };
-          }
+      data.reduce((result, row) => {
+        if (!result[row.id]) {
+          result[row.id] = {
+            id: row.id,
+            name: `${row.first_name} ${row.last_name}`,
+            first_name: row.first_name,
+            last_name: row.last_name,
+            email: row.email,
+            status: row.status,
+            created_at: row.created_at,
+            notes: []
+          };
+        }
 
-          if (row.note_id) {
-            result[row.id].notes.push({
-              id: row.note_id,
-              body: row.note_body,
-              created_at: row.note_created_at
+        return result;
+      }, {})
+    )
+    .then((cust) => {
+      customers = cust;
+      const ids = Object.keys(cust);
+
+      if (ids.length > 0) {
+        return notes.allForUsers(ids);
+      }
+
+      console.error("No customers");
+      throw new Error("No customers");
+    })
+    .then((customerNotes) =>
+      Object.values(
+        customerNotes.reduce((result, row) => {
+          if (result[row.customer_id]) {
+            result[row.customer_id].notes.push({
+              id: row.id,
+              body: row.body,
+              created_at: row.created_at
             });
           }
 
           return result;
-        }, {})
+        }, customers)
       )
-    );
+    )
+    .catch(() => customers);
 };
 
 const update = ({ id, status }) =>

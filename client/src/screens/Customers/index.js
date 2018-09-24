@@ -11,15 +11,17 @@ class Customers extends Component {
     this.state = {
       isModalOpen: false,
       modalTitle: null,
-      modalType: null
+      modalType: null,
+      modalData: null
     };
   }
 
-  openModal({ title, type }) {
+  openModal({ title, type, data }) {
     this.setState({
       isModalOpen: true,
       modalTitle: title,
-      modalType: type
+      modalType: type,
+      modalData: data
     });
   }
 
@@ -27,7 +29,8 @@ class Customers extends Component {
     this.setState({
       isModalOpen: false,
       modalTitle: null,
-      modalType: null
+      modalType: null,
+      modalData: null
     });
   }
 
@@ -43,14 +46,19 @@ class Customers extends Component {
           }
         />
         <Table
-          onNotesClick={() =>
-            this.openModal({ title: "Customer Details", type: "notes" })
+          onNotesClick={(customer) =>
+            this.openModal({
+              title: "Customer Details",
+              type: "notes",
+              data: customer
+            })
           }
         />
         <Modal
           isOpen={this.state.isModalOpen}
           title={this.state.modalTitle}
           type={this.state.modalType}
+          data={this.state.modalData}
           closeModal={() => this.closeModal()}
         />
       </Fragment>

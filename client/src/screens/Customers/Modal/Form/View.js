@@ -2,6 +2,7 @@ import React from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 
+import { extractDate } from "utils/date";
 import Loading from "screens/Customers/Loading";
 import Input from "screens/Customers/Modal/Input";
 import {
@@ -14,6 +15,20 @@ import {
   TextArea
 } from "./styles";
 
+const schema = {
+  id: Yup.number().positive("Invalid"),
+  name: Yup.string(),
+  email: Yup.string().email(),
+  status: Yup.string().matches(
+    /^(prospective|current|non-active)$/,
+    "Invalid status"
+  ),
+  createdAt: Yup.string().matches(
+    /([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))/,
+    "Invalid date"
+  )
+};
+
 const View = ({ isLoading, isSearch, formValues, onSubmit, onReset }) => (
   <Formik
     initialValues={{
@@ -21,23 +36,32 @@ const View = ({ isLoading, isSearch, formValues, onSubmit, onReset }) => (
       name: formValues.name || "",
       email: formValues.email || "",
       status: formValues.status || "",
-      createdAt: formValues.createdAt || ""
+      createdAt:
+        formValues.createdAt || extractDate(formValues.created_at) || "",
+      ...(isSearch
+        ? {}
+        : (formValues.notes || []).reduce(
+            (result, note) => {
+              result[`note-${note.id}`] = note.body;
+              return result;
+            },
+            { "note-new": "" }
+          ))
     }}
     onSubmit={onSubmit}
     onReset={onReset}
     validationSchema={Yup.object().shape({
-      id: Yup.number().positive("Invalid"),
-      name: Yup.string(),
-      email: Yup.string().email(),
-      status: Yup.string().matches(
-        /^(prospective|current|non-active)$/,
-        "Invalid status"
-      ),
-      createdAt: Yup.string().matches(
-        /([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))/,
-        "Invalid date"
-      ),
-      note: Yup.string()
+      ...schema,
+      status: isSearch ? schema.status : schema.status.required("Required"),
+      ...(isSearch
+        ? {}
+        : (formValues.notes || []).reduce(
+            (result, note) => {
+              result[`note-${note.id}`] = Yup.string().required("Required");
+              return result;
+            },
+            { "note-new": Yup.string() }
+          ))
     })}
   >
     {({
@@ -62,6 +86,7 @@ const View = ({ isLoading, isSearch, formValues, onSubmit, onReset }) => (
             value={values.id}
             onChange={handleChange}
             onBlur={handleBlur}
+            disabled={!isSearch}
             error={!!errors.id && touched.id}
           />
         </FormGroup>
@@ -75,6 +100,7 @@ const View = ({ isLoading, isSearch, formValues, onSubmit, onReset }) => (
             value={values.name}
             onChange={handleChange}
             onBlur={handleBlur}
+            disabled={!isSearch}
             error={!!errors.name && touched.name}
           />
         </FormGroup>
@@ -88,13 +114,21 @@ const View = ({ isLoading, isSearch, formValues, onSubmit, onReset }) => (
             value={values.email}
             onChange={handleChange}
             onBlur={handleBlur}
+            disabled={!isSearch}
             error={!!errors.email && touched.email}
           />
         </FormGroup>
         <FormGroup>
           <Label htmlFor="status">Status</Label>
           <SelectWrapper>
-            <Select id="status" name="status">
+            <Select
+              id="status"
+              name="status"
+              value={values.status}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={!!errors.status && touched.status}
+            >
               <option value="" />
               <option value="prospective">prospective</option>
               <option value="current">current</option>
@@ -112,21 +146,38 @@ const View = ({ isLoading, isSearch, formValues, onSubmit, onReset }) => (
             value={values.createdAt}
             onChange={handleChange}
             onBlur={handleBlur}
+            disabled={!isSearch}
             error={!!errors.createdAt && touched.createdAt}
           />
         </FormGroup>
-        <FormGroup>
-          <Label htmlFor="note">Notes</Label>
-          <TextArea
-            id="note"
-            name="note"
-            value={values.note}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={!!errors.note && touched.note}
-          />
-        </FormGroup>
-        <Input type="reset" value="Reset" />
+        {!isSearch && (
+          <FormGroup>
+            <Label htmlFor="note-new">Notes</Label>
+            <TextArea
+              id="note-new"
+              name="note-new"
+              placeholder="New note"
+              value={values["note-new"]}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={!!errors["note-new"] && touched["note-new"]}
+            />
+            {(formValues.notes || []).map((note) => (
+              <TextArea
+                key={String(note.id)}
+                id={`note-${note.id}`}
+                name={`note-${note.id}`}
+                value={values[`note-${note.id}`]}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={
+                  !!errors[`note-${note.id}`] && touched[`note-${note.id}`]
+                }
+              />
+            ))}
+          </FormGroup>
+        )}
+        <Input type="reset" value={isSearch ? "Reset" : "Cancel"} />
         <Input type="submit" value="Submit" />
       </FormWrapper>
     )}

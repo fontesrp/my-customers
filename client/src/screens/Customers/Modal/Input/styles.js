@@ -11,8 +11,15 @@ export const Input = styled.input`
   padding-top: 15px;
   border-width: 0 0 2px 0;
   border-color: ${style.color.lightGray};
+  color: ${style.color.text};
   ${({ error }) => !!error && `border-color: ${style.color.primary}`};
   ${({ customMargin }) => !!customMargin && customMargin};
+
+  &:disabled {
+    color: ${style.color.text};
+    border-color: none;
+    border-width: 0;
+  }
 
   &[type="reset"],
   &[type="submit"] {

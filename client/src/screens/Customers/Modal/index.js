@@ -7,7 +7,7 @@ import OrderBy from "./OrderBy";
 
 ReactModal.setAppElement("#root");
 
-const Modal = ({ isOpen, title, type, closeModal }) => (
+const Modal = ({ isOpen, title, type, data, closeModal }) => (
   <ReactModal
     isOpen={isOpen}
     onRequestClose={closeModal}
@@ -15,7 +15,13 @@ const Modal = ({ isOpen, title, type, closeModal }) => (
     style={{ content: { padding: 0, display: "block" } }}
   >
     <Header title={title} closeModal={closeModal} />
-    {type === "search" && <Form closeModal={closeModal} />}
+    {(type === "search" || type === "notes") && (
+      <Form
+        closeModal={closeModal}
+        isSearch={type === "search"}
+        customer={data}
+      />
+    )}
     {type === "orderBy" && <OrderBy closeModal={closeModal} />}
   </ReactModal>
 );
