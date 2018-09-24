@@ -1,14 +1,20 @@
 const customers = require("../models/customers");
 
 const index = (req, res) => {
-  const { page = 1, size = 15 } = req.query;
+  const { start = 0, stop = 15 } = req.query;
+
+  let items;
 
   customers
     .all({
-      size,
-      offset: (page - 1) * size
+      size: stop - start + 1,
+      offset: start
     })
-    .then((customers) => res.send(customers));
+    .then((result) => {
+      items = result;
+      return customers.count();
+    })
+    .then((result) => res.send({ items, total: result }));
 };
 
 const update = (req, res) => {

@@ -54,7 +54,13 @@ const all = ({ size, offset }) =>
 const update = ({ id, status }) =>
   db.manyOrNone(`UPDATE customers SET status = $1 WHERE id = $2`, [status, id]);
 
+const count = () =>
+  db
+    .one(`SELECT COUNT(1) qtt FROM customers`)
+    .then((row) => parseInt(row.qtt, 10));
+
 module.exports = {
   all,
-  update
+  update,
+  count
 };
