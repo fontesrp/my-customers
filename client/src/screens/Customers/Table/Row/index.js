@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
 
-import Loading from "screens/Customers/Table/Loading";
+import Loading from "screens/Customers/Loading";
 import { localeDate } from "utils/date";
 import {
   Wrapper,

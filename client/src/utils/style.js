@@ -7,7 +7,8 @@ const style = {
     white: "#fff",
     text: "#2a3132",
     lightGray: "#e6e6e6",
-    gray: "#333"
+    gray: "#333",
+    whiteTransparent: "rgba(255, 255, 255, 0.75)"
   },
   font: {
     sans: "Helvetica, Arial, sans-serif"

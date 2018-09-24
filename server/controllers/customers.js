@@ -1,20 +1,34 @@
 const customers = require("../models/customers");
 
 const index = (req, res) => {
-  const { start = 0, stop = 15 } = req.query;
+  const { start = 0, stop = 15, search, orderBy } = req.query;
+
+  let _search;
+
+  try {
+    _search = JSON.parse(search);
+  } catch (e) {
+    _search = null;
+  }
 
   let items;
 
   customers
     .all({
       size: stop - start + 1,
-      offset: start
+      offset: start,
+      search: _search,
+      orderBy
     })
     .then((result) => {
       items = result;
       return customers.count();
     })
-    .then((result) => res.send({ items, total: result }));
+    .then((result) => res.send({ items, total: result }))
+    .catch((error) => {
+      res.status(500);
+      res.send({ error });
+    });
 };
 
 const update = (req, res) => {

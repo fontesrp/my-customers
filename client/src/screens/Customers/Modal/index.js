@@ -14,7 +14,7 @@ const Modal = ({ isOpen, title, type, closeModal }) => (
     style={{ content: { padding: 0, display: "block" } }}
   >
     <Header title={title} closeModal={closeModal} />
-    <Form />
+    <Form closeModal={closeModal} />
   </ReactModal>
 );
 

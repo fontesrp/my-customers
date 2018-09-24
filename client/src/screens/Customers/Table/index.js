@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 
 import { fetchCustomers } from "redux/actions/CustomersActions";
 import { documentDimentions } from "utils/measures";
-import Loading from "./Loading";
 import View from "./View";
 
 class Table extends Component {
@@ -17,7 +16,7 @@ class Table extends Component {
   }
 
   componentDidMount() {
-    this.loadNextPage({ startIndex: 0, stopIndex: 15 });
+    this.loadNextPage({ startIndex: 0, stopIndex: 30 });
   }
 
   loadNextPage({ startIndex, stopIndex }) {
@@ -29,7 +28,7 @@ class Table extends Component {
       // make one request per new row, which would slow the system down and could
       // crash the API.
       const _stopIndex =
-        stopIndex - startIndex < 15 ? startIndex + 15 : stopIndex;
+        stopIndex - startIndex < 30 ? startIndex + 30 : stopIndex;
 
       return this.props
         .fetchCustomers({ startIndex, stopIndex: _stopIndex })
@@ -50,10 +49,6 @@ class Table extends Component {
   }
 
   render() {
-    if (this.state.isFirstLoad) {
-      return <Loading full />;
-    }
-
     const { customersState, onNotesClick } = this.props;
 
     const { customers } = customersState;
@@ -64,6 +59,7 @@ class Table extends Component {
 
     return (
       <View
+        isFirstLoad={this.state.isFirstLoad}
         customers={customers}
         rowCount={rowCount}
         documentDimentions={documentDimentions()}

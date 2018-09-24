@@ -9,6 +9,13 @@ export const Wrapper = styled.div`
   align-items: center;
   padding: 15px 0;
   ${({ full }) => !!full && "height: calc(100% - 83px)"};
+  ${({ absolute }) =>
+    !!absolute &&
+    `
+    position: absolute;
+    height: 100%;
+    background-color: ${style.color.whiteTransparent};
+  `};
 `;
 
 const rotate = keyframes`

@@ -1,7 +1,66 @@
 const db = require("../db").db;
 
-const all = ({ size, offset }) =>
-  db
+const prepareSearch = (search) => {
+  const { id, name, email, status, createdAt, note } = search;
+
+  const names = (name || "").split(/\s+/);
+
+  const fields = [
+    { field: "cus.id::text", value: id },
+    { field: "cus.first_name", value: names[0] },
+    { field: "cus.last_name", value: names[1] },
+    { field: "cus.email", value: email },
+    { field: "cus.status::text", value: status },
+    { field: "cus.created_at::text", value: createdAt },
+    { field: "nts.body", value: note }
+  ];
+
+  return fields.reduce(
+    (result, curr) => {
+      if (curr.value) {
+        result.fields.push(curr.field);
+        result.values.push(curr.value);
+      }
+
+      return result;
+    },
+    {
+      fields: [],
+      values: []
+    }
+  );
+};
+
+const whereStmt = (fields, countFrom = 1) =>
+  fields.reduce(
+    (where, fld, idx) =>
+      `${where}${!!where ? " AND " : ""}${fld} ILIKE '%$${countFrom +
+        idx}:value%'`,
+    ""
+  );
+
+const orderByStmt = (orderBy) => {
+  const fields = [
+    { db: "cus.id", client: "id" },
+    { db: "cus.first_name", client: "name" },
+    { db: "cus.email", client: "email" },
+    { db: "cus.status", client: "status" },
+    { db: "cus.created_at", client: "createdAt" }
+  ];
+
+  return (fields.find((fld) => fld.client === orderBy) || {}).db;
+};
+
+const all = ({ size, offset, search, orderBy }) => {
+  const _search = search ? prepareSearch(search) : null;
+
+  let params = [size, offset];
+
+  if (!!_search && _search.values.length > 0) {
+    params = [...params, ..._search.values];
+  }
+
+  return db
     .manyOrNone(
       `SELECT
         cus.id,
@@ -16,11 +75,17 @@ const all = ({ size, offset }) =>
       FROM
         customers cus
         LEFT OUTER JOIN notes nts ON cus.id = nts.id
+      ${
+        !!_search && _search.fields.length > 0
+          ? `WHERE ${whereStmt(_search.fields, 3)}`
+          : ""
+      }
       ORDER BY
+        ${!!orderBy ? `${orderByStmt(orderBy)},` : ""}
         cus.id
       LIMIT $1
       OFFSET $2`,
-      [size, offset]
+      params
     )
     .then((data) =>
       Object.values(
@@ -50,6 +115,7 @@ const all = ({ size, offset }) =>
         }, {})
       )
     );
+};
 
 const update = ({ id, status }) =>
   db.manyOrNone(`UPDATE customers SET status = $1 WHERE id = $2`, [status, id]);

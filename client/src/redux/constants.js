@@ -1,1 +1,6 @@
 export const RECIEVE_CUSTOMERS = "RECIEVE_CUSTOMERS";
+export const RESET_CUSTOMERS = "RESET_CUSTOMERS";
+export const SET_SEARCH = "SET_SEARCH";
+export const CLEAN_SEARCH = "CLEAN_SEARCH";
+export const SET_ORDER_BY = "SET_ORDER_BY";
+export const CLEAN_ORDER_BY = "CLEAN_ORDER_BY";
