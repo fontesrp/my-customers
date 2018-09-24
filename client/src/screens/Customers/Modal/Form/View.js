@@ -3,11 +3,11 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 
 import Loading from "screens/Customers/Loading";
+import Input from "screens/Customers/Modal/Input";
 import {
   FormWrapper,
   FormGroup,
   Label,
-  Input,
   SelectWrapper,
   Select,
   ArrowDown,

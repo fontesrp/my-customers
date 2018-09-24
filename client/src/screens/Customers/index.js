@@ -38,7 +38,9 @@ class Customers extends Component {
           onSearchClick={() =>
             this.openModal({ title: "Search", type: "search" })
           }
-          onSortClick={() => this.openModal({ title: "Sort", type: "sort" })}
+          onSortClick={() =>
+            this.openModal({ title: "Sort customers", type: "orderBy" })
+          }
         />
         <Table
           onNotesClick={() =>
