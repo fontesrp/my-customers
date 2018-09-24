@@ -6,12 +6,14 @@ const style = {
     light: "#90afc5",
     white: "#fff",
     text: "#2a3132",
-    lightGray: "#e6e6e6"
+    lightGray: "#e6e6e6",
+    gray: "#333"
   },
   font: {
     sans: "Helvetica, Arial, sans-serif"
   },
   size: {
+    small: "14px",
     normal: "16px",
     large: "18px",
     xlarge: "24px",
