@@ -48,3 +48,5 @@ yarn start
 
 on the project's root. This should start the Express server on port 3001 and the React development server on port 3000.
 
+The client was developed mobile-first, so if you want to have the best experience you should access it through Chrome using the device toolbar.
+
